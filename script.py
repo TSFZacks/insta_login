@@ -1,76 +1,62 @@
-from flask import Flask, request, redirect, jsonify
+from flask import Flask, redirect, request, session, url_for
 import requests
 import os
-from dotenv import load_dotenv
-import threading
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-import time
-import webbrowser
 
-# Configuração do Flask
-load_dotenv()
+app = Flask(__name__)  # Corrigido aqui
+app.secret_key = r"b'9\xfa\xd1\xcdT\x83\t\xee*\x00\xc7Q@ +W\x8d\r;\xe7\xef\xd9\xc1\xfa'"
 
-app = Flask(__name__)
+# Substitua pelos valores do seu app Meta
+CLIENT_ID = os.getenv('APP_ID')
+CLIENT_SECRET = os.getenv('APP_SECRET')
+REDIRECT_URI = 'http://localhost:5000/callback'  # O mesmo URI que você configurou no Meta
 
-app_id = os.getenv('APP_ID')
-app_secret = os.getenv('APP_SECRET')
-redirect_uri = 'http://localhost:8000/callback'
+# URL de autorização do Instagram
+AUTH_URL = 'https://api.instagram.com/oauth/authorize'
+TOKEN_URL = 'https://api.instagram.com/oauth/access_token'
+
 
 @app.route('/')
-def index():
-    auth_url = f'https://www.facebook.com/v10.0/dialog/oauth?client_id={app_id}&redirect_uri={redirect_uri}&scope=instagram_basic,instagram_manage_insights,pages_show_list'
-    return redirect(auth_url)
+def home():
+    # Redireciona o usuário para a página de autenticação do Instagram
+    auth_redirect_url = (
+        f"{AUTH_URL}?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}"
+        "&scope=user_profile,user_media&response_type=code"
+    )
+    return redirect(auth_redirect_url)
+
 
 @app.route('/callback')
 def callback():
+    # Recebe o código de autorização do Instagram
     code = request.args.get('code')
+    
     if not code:
-        return 'Código de autorização não encontrado.', 400
+        return "Erro: Código de autorização não foi retornado!", 400
 
-    token_url = 'https://graph.facebook.com/v10.0/oauth/access_token'
-    token_params = {
-        'client_id': app_id,
-        'redirect_uri': redirect_uri,
-        'client_secret': app_secret,
-        'code': code,
+    # Troca o código de autorização por um token de acesso
+    data = {
+        'client_id': CLIENT_ID,
+        'client_secret': CLIENT_SECRET,
+        'grant_type': 'authorization_code',
+        'redirect_uri': REDIRECT_URI,
+        'code': code
     }
-
-    response = requests.get(token_url, params=token_params)
+    
+    response = requests.post(TOKEN_URL, data=data)
     
     if response.status_code != 200:
-        return f'Erro ao obter token de acesso: {response.text}', response.status_code
-
+        return f"Erro ao trocar código por token: {response.text}", 400
+    
     access_token_info = response.json()
     access_token = access_token_info.get('access_token')
+    user_id = access_token_info.get('user_id')
 
-    if not access_token:
-        return 'Erro ao obter token de acesso.', 400
+    # Salvar o token de acesso na sessão ou em um banco de dados
+    session['access_token'] = access_token
+    session['user_id'] = user_id
     
-    # Armazenar o token de acesso em um arquivo
-    with open('insta_login/token.txt', 'w') as token_file:
-        token_file.write(access_token)
-    
-    # Retornar uma resposta informando que o token foi salvo
-    return jsonify(message='Token de acesso salvo com sucesso em token.txt')
+    return f"Autenticação bem-sucedida! Token de Acesso: {access_token} (User ID: {user_id})"
 
-def run_flask():
-    app.run(port=8000)
 
-def open_browser():
-
-    time.sleep(4)
-    webbrowser.open('http://127.0.0.1:8000')
-
-if __name__ == '__main__':
-    # Criar e iniciar as threads
-    flask_thread = threading.Thread(target=run_flask)
-    selenium_thread = threading.Thread(target=open_browser)
-    
-    flask_thread.start()
-    selenium_thread.start()
-    
-    # Esperar que ambas as threads terminem
-    flask_thread.join()
-    selenium_thread.join()
+if __name__ == "__main__":  # Corrigido aqui
+    app.run(debug=True)
