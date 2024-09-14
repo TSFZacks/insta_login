@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-$CLIENT_ID = '477575051691928';
-$CLIENT_SECRET = '9b690735a1df9c3bfdcbbb0097427228';
-$REDIRECT_URI = 'https://www.google.com/';
+$CLIENT_ID = '1018697403337532';
+$CLIENT_SECRET = '7e03f4d64831da589b9781b64cb4ddfd';
+$REDIRECT_URI = '​https://www.gestao.top/';
 
 $AUTH_URL = 'https://api.instagram.com/oauth/authorize';
 $TOKEN_URL = 'https://api.instagram.com/oauth/access_token';
