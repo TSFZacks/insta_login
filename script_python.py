@@ -5,9 +5,9 @@ import os
 app = Flask(__name__)
 app.secret_key = r"b'9\xfa\xd1\xcdT\x83\t\xee*\x00\xc7Q@ +W\x8d\r;\xe7\xef\xd9\xc1\xfa'"
 
-CLIENT_ID = '477575051691928'
-CLIENT_SECRET = '7d3a2d963e5c5e9e7ffdb6a76b90854b'
-REDIRECT_URI = 'https://www.google.com/'
+CLIENT_ID = '1018697403337532'
+CLIENT_SECRET = '7e03f4d64831da589b9781b64cb4ddfd'
+REDIRECT_URI = '​https://www.gestao.top/'
 
 AUTH_URL = 'https://api.instagram.com/oauth/authorize'
 TOKEN_URL = 'https://api.instagram.com/oauth/access_token'
