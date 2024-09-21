@@ -6,7 +6,7 @@ if (isset($_GET['code'])) {
 
     // Troca o código pelo token de acesso
     $client_id = '1018697403337532';
-    $client_secret = 'SUA_CLIENT_SECRET';
+    $client_secret = '7e03f4d64831da589b9781b64cb4ddfd';
     $redirect_uri = 'https://script.gestaotop.com/_insta_login.php';
     $token_url = 'https://api.instagram.com/oauth/access_token';
 
